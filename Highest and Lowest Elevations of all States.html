@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Elevations with Flags</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            cursor: pointer;
+        }
+
+        .high {
+            color: #4285F4;
+            font-weight: bold;
+        }
+
+        .low {
+            color: #EA4335;
+            font-weight: bold;
+        }
+
+        .state-flag {
+            width: 20px;
+            height: auto;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 0.8em;
+                padding: 8px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .state-flag {
+                width: 15px;
+                margin-right: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Highest and Lowest Elevations by State</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>State</th>
+            <th onclick="sortTable(1)">Highest Elevation (ft)</th>
+            <th onclick="sortTable(2)">Lowest Elevation (ft)</th>
+        </tr>
+    </thead>
+    <tbody id="elevation-table"></tbody>
+</table>
+
+<script>
+    const elevations = [
+        { state: 'Alabama', high: 2407, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Alabama.svg' },
+        { state: 'Alaska', high: 20320, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Flag_of_Alaska.svg' },
+        { state: 'Arizona', high: 12637, low: 70, flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg' },
+        { state: 'Arkansas', high: 2753, low: 55, flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arkansas.svg' },
+        { state: 'California', high: 14505, low: -282, flag: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg' },
+        { state: 'Colorado', high: 14433, low: 3317, flag: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Flag_of_Colorado.svg' },
+        { state: 'Connecticut', high: 2380, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Flag_of_Connecticut.svg' },
+        { state: 'Delaware', high: 448, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Flag_of_Delaware.svg' },
+        { state: 'Florida', high: 345, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg' },
+        { state: 'Georgia', high: 4784, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Flag_of_the_State_of_Georgia.svg/46px-Flag_of_the_State_of_Georgia.svg.png' },
+        { state: 'Hawaii', high: 13796, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Flag_of_Hawaii.svg' },
+        { state: 'Idaho', high: 12662, low: 710, flag: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_Idaho.svg' },
+        { state: 'Illinois', high: 1235, low: 279, flag: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Illinois.svg' },
+        { state: 'Indiana', high: 1257, low: 320, flag: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Flag_of_Indiana.svg' },
+        { state: 'Iowa', high: 1670, low: 480, flag: 'https://upload.wikimedia.org/wikipedia/commons/a/aa/Flag_of_Iowa.svg' },
+        { state: 'Kansas', high: 4039, low: 679, flag: 'https://upload.wikimedia.org/wikipedia/commons/d/da/Flag_of_Kansas.svg' },
+        { state: 'Kentucky', high: 4145, low: 257, flag: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Flag_of_Kentucky.svg' },
+        { state: 'Louisiana', high: 535, low: -8, flag: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Flag_of_Louisiana.svg' },
+        { state: 'Maine', high: 5268, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/3/35/Flag_of_Maine.svg' },
+        { state: 'Maryland', high: 3360, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg' },
+        { state: 'Massachusetts', high: 3491, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f2/Flag_of_Massachusetts.svg' },
+        { state: 'Michigan', high: 1979, low: 571, flag: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/Flag_of_Michigan.svg' },
+        { state: 'Minnesota', high: 2301, low: 601, flag: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Minnesota.svg' },
+        { state: 'Mississippi', high: 807, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Flag_of_Mississippi.svg' },
+        { state: 'Missouri', high: 1772, low: 230, flag: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Flag_of_Missouri.svg' },
+        { state: 'Montana', high: 12799, low: 1804, flag: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Flag_of_Montana.svg' },
+        { state: 'Nebraska', high: 5424, low: 840, flag: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Flag_of_Nebraska.svg' },
+        { state: 'Nevada', high: 13147, low: 479, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Flag_of_Nevada.svg' },
+        { state: 'New Hampshire', high: 6288, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Flag_of_New_Hampshire.svg' },
+        { state: 'New Jersey', high: 1803, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_New_Jersey.svg' },
+        { state: 'New Mexico', high: 13161, low: 2842, flag: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_New_Mexico.svg' },
+        { state: 'New York', high: 5344, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg' },
+        { state: 'North Carolina', high: 6684, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Flag_of_North_Carolina.svg' },
+        { state: 'North Dakota', high: 3507, low: 751, flag: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Flag_of_North_Dakota.svg' },
+        { state: 'Ohio', high: 1549, low: 455, flag: 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Flag_of_Ohio.svg' },
+        { state: 'Oklahoma', high: 4973, low: 289, flag: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Flag_of_Oklahoma.svg' },
+        { state: 'Oregon', high: 11249, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Oregon.svg' },
+        { state: 'Pennsylvania', high: 3213, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Pennsylvania.svg' },
+        { state: 'Rhode Island', high: 812, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Rhode_Island.svg' },
+        { state: 'South Carolina', high: 3560, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/6/69/Flag_of_South_Carolina.svg' },
+        { state: 'South Dakota', high: 7242, low: 966, flag: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_South_Dakota.svg' },
+        { state: 'Tennessee', high: 6643, low: 178, flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Tennessee.svg' },
+        { state: 'Texas', high: 8751, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg' },
+        { state: 'Utah', high: 13528, low: 2000, flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Utah.svg' },
+        { state: 'Vermont', high: 4395, low: 95, flag: 'https://upload.wikimedia.org/wikipedia/commons/4/49/Flag_of_Vermont.svg' },
+        { state: 'Virginia', high: 5729, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Flag_of_Virginia.svg' },
+        { state: 'Washington', high: 14411, low: 0, flag: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Flag_of_Washington.svg' },
+        { state: 'West Virginia', high: 4863, low: 240, flag: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Flag_of_West_Virginia.svg' },
+        { state: 'Wisconsin', high: 1951, low: 581, flag: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Flag_of_Wisconsin.svg' },
+        { state: 'Wyoming', high: 13809, low: 3099, flag: 'https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Wyoming.svg' }
+    ];
+
+    const tableBody = document.getElementById('elevation-table');
+
+    function populateTable() {
+        tableBody.innerHTML = '';
+        elevations.forEach(elevation => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td><img src="${elevation.flag}" alt="${elevation.state} Flag" class="state-flag">${elevation.state}</td>
+                <td class="${elevation.high > 10000 ? 'high' : ''}">${elevation.high}</td>
+                <td class="${elevation.low < 0 ? 'low' : ''}">${elevation.low}</td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    function sortTable(columnIndex) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        const isAscending = tableBody.getAttribute('data-sort-direction') === 'asc';
+        
+        rows.sort((a, b) => {
+            const aValue = parseFloat(a.cells[columnIndex].textContent.replace(',', '')) || 0;
+            const bValue = parseFloat(b.cells[columnIndex].textContent.replace(',', '')) || 0;
+            
+            return isAscending ? aValue - bValue : bValue - aValue;
+        });
+
+        tableBody.setAttribute('data-sort-direction', isAscending ? 'desc' : 'asc');
+        tableBody.innerHTML = '';
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+
+    populateTable();
+</script>
+
+</body>
+</html>
