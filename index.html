@@ -79,12 +79,13 @@
     <thead>
         <tr>
             <th>State</th>
-            <th onclick="sortTable(1)">Highest Elevation (ft)</th>
-            <th onclick="sortTable(2)">Lowest Elevation (ft)</th>
+            <th onclick="sortTable(1)">Highest Elevation (ft)<br><span style="font-style: italic; text-transform: lowercase;">click to sort</span></th>
+            <th onclick="sortTable(2)">Lowest Elevation (ft)<br><span style="font-style: italic; text-transform: lowercase;">click to sort</span></th>
         </tr>
     </thead>
     <tbody id="elevation-table"></tbody>
 </table>
+
 
 <script>
     const elevations = [
